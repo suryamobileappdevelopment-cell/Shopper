@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.shopease"
+    namespace = "com.example.shopper"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.shopease"
+        applicationId = "com.example.shopper"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -57,29 +57,4 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Jetpack Compose BOM (Bill of Materials - auto manages versions)
-    implementation(platform("androidx.compose:compose-bom:2024.10.01"))
-
-    // Core Compose UI
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-
-    // Material 3 (for modern components like OutlinedTextField, Button, etc.)
-    implementation("androidx.compose.material3:material3")
-
-    // Material Icons (for Visibility / VisibilityOff)
-    implementation("androidx.compose.material:material-icons-extended")
-
-    // Compose Runtime
-    implementation("androidx.compose.runtime:runtime")
-
-    // Activity Compose integration
-    implementation("androidx.activity:activity-compose:1.9.3")
-
-    // Optional: For animations and preview support
-    implementation("androidx.compose.animation:animation")
-    implementation("androidx.compose.ui:ui-graphics")
-
 }

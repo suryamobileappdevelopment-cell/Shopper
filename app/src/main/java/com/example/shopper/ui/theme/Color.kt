@@ -1,4 +1,4 @@
-package com.example.shopease.ui.theme
+package com.example.shopper.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
