@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "558300670614",
+    "project_id": "shopper-e11f0",
+    "storage_bucket": "shopper-e11f0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:558300670614:android:61b1651985b099cfc7b0b7",
+        "android_client_info": {
+          "package_name": "com.example.shopper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaVcE2fti6uP6U2iOvY8Stlx4W75GD8mw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
