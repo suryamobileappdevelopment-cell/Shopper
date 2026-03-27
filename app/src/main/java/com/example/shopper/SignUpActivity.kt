@@ -1,12 +1,11 @@
 package com.example.shopper
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,22 +17,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.shopper.ui.theme.ShopperTheme
 
-class SignUpActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            ShopperTheme {
-                SignUpScreen()
-            }
-        }
-    }
-}
-
 @Composable
-fun SignUpScreen() {
+fun SignUpScreen(navController: NavHostController) {
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -54,13 +43,11 @@ fun SignUpScreen() {
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
 
-            // Title
             Text(
                 text = "Create Account",
                 fontSize = 28.sp,
@@ -78,7 +65,6 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Name Field
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -89,7 +75,6 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Email Field
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -100,7 +85,6 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Password Field
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
@@ -112,7 +96,6 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Confirm Password Field
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
@@ -124,10 +107,10 @@ fun SignUpScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Sign Up Button
             Button(
                 onClick = {
-                    // Sign-up logic will be added later
+                    // later you can navigate to home
+                    // navController.navigate("home")
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +125,10 @@ fun SignUpScreen() {
                 text = "Already have an account? Login",
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                color = Color.DarkGray
+                color = Color.DarkGray,
+                modifier = Modifier.clickable {
+                    navController.navigate("login")
+                }
             )
         }
     }
@@ -152,6 +138,6 @@ fun SignUpScreen() {
 @Composable
 fun SignUpPreview() {
     ShopperTheme {
-        SignUpScreen()
+        SignUpScreen(navController = rememberNavController())
     }
 }

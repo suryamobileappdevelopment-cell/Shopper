@@ -1,6 +1,5 @@
 package com.example.shopper
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,6 +18,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.shopper.ui.theme.ShopperTheme
 import kotlinx.coroutines.delay
 
@@ -28,22 +31,37 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ShopperTheme {
-                SplashScreen {
-                    startActivity(Intent(this, LoginActivity::class.java))
-                    finish()
-                }
+                val navController = rememberNavController()
+                AppNavigation(navController = navController)
             }
         }
     }
 }
 
 @Composable
-fun SplashScreen(onSplashFinished: () -> Unit) {
+fun AppNavigation(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = "splash"
+    ) {
+        composable("splash") {
+            SplashScreen(navController = navController)
+        }
 
-    // Delay and navigate
+        composable("login") {
+            LoginScreen()
+        }
+    }
+}
+
+@Composable
+fun SplashScreen(navController: NavHostController) {
+
     LaunchedEffect(Unit) {
-        delay(2000) // 2 seconds
-        onSplashFinished()
+        delay(2000)
+        navController.navigate("login") {
+            popUpTo("splash") { inclusive = true }
+        }
     }
 
     val gradientBackground = Brush.verticalGradient(
@@ -83,10 +101,25 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
     }
 }
 
+@Composable
+fun LoginScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "Login Screen",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun SplashScreenPreview() {
     ShopperTheme {
-        SplashScreen {}
+        val navController = rememberNavController()
+        SplashScreen(navController = navController)
     }
 }
