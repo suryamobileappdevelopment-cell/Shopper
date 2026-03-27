@@ -1,16 +1,21 @@
 package com.example.shopper
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
@@ -20,14 +25,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.shopper.ui.theme.ShopperTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 @Composable
 fun SignUpScreen(navController: NavHostController) {
+
+    val context = LocalContext.current
+    val auth = remember { FirebaseAuth.getInstance() }
+    val db = remember { FirebaseFirestore.getInstance() }
 
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(
@@ -67,7 +80,10 @@ fun SignUpScreen(navController: NavHostController) {
 
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = {
+                    name = it
+                    errorMessage = ""
+                },
                 label = { Text("Full Name") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -77,7 +93,10 @@ fun SignUpScreen(navController: NavHostController) {
 
             OutlinedTextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    errorMessage = ""
+                },
                 label = { Text("Email") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -87,7 +106,10 @@ fun SignUpScreen(navController: NavHostController) {
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    errorMessage = ""
+                },
                 label = { Text("Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
@@ -98,28 +120,135 @@ fun SignUpScreen(navController: NavHostController) {
 
             OutlinedTextField(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = {
+                    confirmPassword = it
+                    errorMessage = ""
+                },
                 label = { Text("Confirm Password") },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (errorMessage.isNotEmpty()) {
+                Text(
+                    text = errorMessage,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
             Button(
                 onClick = {
-                    // later you can navigate to home
-                    // navController.navigate("home")
+                    val trimmedName = name.trim()
+                    val trimmedEmail = email.trim()
+                    val trimmedPassword = password.trim()
+                    val trimmedConfirmPassword = confirmPassword.trim()
+
+                    when {
+                        trimmedName.isEmpty() -> {
+                            errorMessage = "Please enter your full name"
+                        }
+
+                        trimmedEmail.isEmpty() -> {
+                            errorMessage = "Please enter your email"
+                        }
+
+                        !Patterns.EMAIL_ADDRESS.matcher(trimmedEmail).matches() -> {
+                            errorMessage = "Please enter a valid email address"
+                        }
+
+                        trimmedPassword.isEmpty() -> {
+                            errorMessage = "Please enter your password"
+                        }
+
+                        trimmedPassword.length < 6 -> {
+                            errorMessage = "Password must be at least 6 characters"
+                        }
+
+                        trimmedConfirmPassword.isEmpty() -> {
+                            errorMessage = "Please confirm your password"
+                        }
+
+                        trimmedPassword != trimmedConfirmPassword -> {
+                            errorMessage = "Passwords do not match"
+                        }
+
+                        else -> {
+                            isLoading = true
+                            errorMessage = ""
+
+                            auth.createUserWithEmailAndPassword(trimmedEmail, trimmedPassword)
+                                .addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val userId = auth.currentUser?.uid.orEmpty()
+
+                                        val userMap = hashMapOf(
+                                            "uid" to userId,
+                                            "name" to trimmedName,
+                                            "email" to trimmedEmail
+                                        )
+
+                                        db.collection("users")
+                                            .document(userId)
+                                            .set(userMap)
+                                            .addOnSuccessListener {
+                                                isLoading = false
+                                                Toast.makeText(
+                                                    context,
+                                                    "Account created successfully",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+
+                                                navController.navigate("home") {
+                                                    popUpTo("signup") { inclusive = true }
+                                                }
+                                            }
+                                            .addOnFailureListener { e ->
+                                                isLoading = false
+                                                errorMessage = e.message ?: "Failed to save user data"
+                                            }
+                                    } else {
+                                        isLoading = false
+                                        errorMessage =
+                                            task.exception?.message ?: "Sign up failed"
+                                    }
+                                }
+                        }
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp)
+                    .height(50.dp),
+                enabled = !isLoading
             ) {
-                Text(text = "Sign Up")
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Text(text = "Sign Up")
+                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            TextButton(
+                onClick = {
+                    navController.navigate("login")
+                }
+            ) {
+                Text("Back to Login")
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "Already have an account? Login",
