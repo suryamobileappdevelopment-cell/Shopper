@@ -49,14 +49,21 @@ fun AppNavigation(navController: NavHostController) {
         }
 
         composable("login") {
-            LoginScreen()
+            LoginScreen(navController = navController)
+        }
+
+        composable("signup") {
+            SignUpScreen(navController = navController)
+        }
+
+        composable("home") {
+            HomeScreen(navController = navController)
         }
     }
 }
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-
     LaunchedEffect(Unit) {
         delay(2000)
         navController.navigate("login") {
@@ -66,8 +73,8 @@ fun SplashScreen(navController: NavHostController) {
 
     val gradientBackground = Brush.verticalGradient(
         colors = listOf(
-            Color(0xFF2196F3), // Blue
-            Color(0xFFFFFDD0)  // Cream
+            Color(0xFF2196F3),
+            Color(0xFFFFFDD0)
         )
     )
 
@@ -81,7 +88,6 @@ fun SplashScreen(navController: NavHostController) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Text(
                 text = "Shopper",
                 fontSize = 36.sp,
@@ -98,20 +104,6 @@ fun SplashScreen(navController: NavHostController) {
                 color = Color.DarkGray
             )
         }
-    }
-}
-
-@Composable
-fun LoginScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Login Screen",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 
